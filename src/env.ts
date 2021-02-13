@@ -34,10 +34,13 @@ const missingRequiredVars =
 	requiredVars.filter(rv => !process.env[rv])
 
 if (missingRequiredVars.length != 0) {
-	console.log(
-		"You are missing the following required env var(s):"
-	)
-	missingRequiredVars.forEach(rv => console.log(' - ' + rv))
+	
+	// Log missing vars
+	console.log("You are missing the following env var(s):")
+	missingRequiredVars
+		.forEach(rv => console.log(' - ' + rv))
+	
+	// Exit
 	process.exit(1)
 }
 

@@ -8,7 +8,7 @@
 import { Request, Response, NextFunction } from "express"
 
 
-export function handleAppError(app: any) {
+export function handleAppErrors(app: any) {
 	
 	app.use((error: any, 
 		req: Request, res: Response, next: NextFunction) => {
@@ -20,6 +20,11 @@ export function handleAppError(app: any) {
 			.json({ code: status, message: message })
 	})
 }
+
+
+//---------------------------------------------------------
+// Errors
+//---------------------------------------------------------
 
 export class StatusError extends Error {
 

@@ -13,13 +13,13 @@ import { apiRoute } from '.';
 @repository(User)
 export default class Users extends Repository<User> {
 
-
+	// @apiWith(isAuth(), isAdmin(), isRole('publisher'))
 	@apiRoute('get', '/users')
 	public async findAll() {
 
 		return await this.find()
 	}
-	
+
 
 	@apiRoute('get', '/user/create')
 	public async createUsers(id: number) {
@@ -31,7 +31,7 @@ export default class Users extends Repository<User> {
 			},
 			{ 
 				firstname: 'François', lastname: 'Hollande', 
-				email: 'françois@hollande.fr', password: '123456' 
+				email: 'françois@hollande.fr', password: '123456'
 			},
 			{ 
 				firstname: 'Nicolas', lastname: 'Sarkozy', 
