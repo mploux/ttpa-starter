@@ -8,7 +8,6 @@
 import { tableRepository, Repository } from '../typeorm'
 import User from '../models/User';
 import { apiRoute } from '.';
-import { Request } from 'express';
 
 
 @tableRepository(User)
