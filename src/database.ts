@@ -9,6 +9,8 @@ import { createConnection, getConnectionManager }
 	from "typeorm"
 import { conf as envConf } from './env'
 
+import User from './models/User'
+
 
 export type Conf = {
 	host: string,
@@ -35,7 +37,8 @@ export class Database {
 		}
 
 		return await createConnection({
-			type: "postgres", ...this.conf, 
+			type: "postgres", ...this.conf,
+			entities: [ User ],
 			synchronize: true
 		})
 	}

@@ -15,24 +15,28 @@
 *
 ***********************************************************/
 
+import "reflect-metadata"
+
 import {
-	Connection,
+	Connection, Repository, BaseEntity, getConnection,
 
 	Entity									as table, 
 	Column									as column, 
 	PrimaryColumn						as primaryColumn,
 	PrimaryGeneratedColumn	as primaryGeneratedColumn,
+	EntityRepository				as repository,
 
 } from "typeorm"
 
 
-export abstract class Table {
+export abstract class Table extends BaseEntity {
 
 	@primaryGeneratedColumn()
 	id!: number
 }
 
 export {
-	Connection,
-	table, column, primaryColumn, primaryGeneratedColumn
+	Connection, Repository, getConnection,
+	table, column, primaryColumn, primaryGeneratedColumn, 
+	repository
 }

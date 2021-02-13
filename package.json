@@ -1,7 +1,7 @@
 {
-	"name": "ts-typeorm-pg-auth-boilerplate",
+	"name": "ttpa-starter",
 	"version": "1.0.0",
-	"description": "Typescript, TypeORM, PostgreSQL, Auth - Boilerplate",
+	"description": "Typescript, TypeORM, PostgreSQL, Auth - Starter",
 	"main": "src/index.ts",
 	"author": "Marc-André Ploux <marcandre@ploux.fr>",
 	"private": true,
