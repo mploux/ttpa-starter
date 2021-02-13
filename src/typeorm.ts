@@ -24,7 +24,7 @@ import {
 	Column									as column, 
 	PrimaryColumn						as primaryColumn,
 	PrimaryGeneratedColumn	as primaryGeneratedColumn,
-	EntityRepository				as repository,
+	EntityRepository				as tableRepository,
 
 } from "typeorm"
 
@@ -38,5 +38,5 @@ export abstract class Table extends BaseEntity {
 export {
 	Connection, Repository, getConnection,
 	table, column, primaryColumn, primaryGeneratedColumn, 
-	repository
+	tableRepository
 }

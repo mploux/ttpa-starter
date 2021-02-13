@@ -30,6 +30,7 @@ const requiredVars = [
 	'DB_PASS',
 ]
 
+// Getting missing vars
 const missingRequiredVars = 
 	requiredVars.filter(rv => !process.env[rv])
 

@@ -64,16 +64,23 @@ export function getApiRoutes<T>
 		router[(method as ApiMethod)]
 			(path, async (req, res, next) => {
 			
-			let opts = Object.values(req.params)
-			if (method != 'get')
-				opts = req.body
+			// Handle GET requests
+			if (method == 'get') {
+				let params = Object.values(req.params)
+				// @ts-ignore because it's ok to be dynamic
+				const result = await repo[md].apply(repo, params)
 
-			// @ts-ignore because it's ok to be dynamic
-			const result = await repo[md].apply(repo, opts)
+				if (!result)
+					return next(new NotFoundError())
+				res.status(200).json(result)
+			}
 
-			if (!result)
-				return next(new NotFoundError())
-			res.status(200).json(result)
+			// Handle other requests
+			else {
+				// @ts-ignore because it's ok to be dynamic
+				const result = await repo[md](req.body)
+				res.status(200).json(result)
+			}
 		})
 	}
 
