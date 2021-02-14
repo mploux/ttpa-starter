@@ -10,10 +10,10 @@ import { column, Table, table } from '../typeorm'
 @table("users")
 export default class User extends Table {
 
-	@column()
+	@column({ nullable: true })
 	firstname!: string
 	
-	@column()
+	@column({ nullable: true })
 	lastname!: string
 	
 	@column()

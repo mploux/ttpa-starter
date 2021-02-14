@@ -1,6 +1,6 @@
 /**********************************************************
 *
-*  Env conf
+*  Env conf - WIP
 *  @author Marc <marcandre@ploux.fr>
 *
 ***********************************************************/
@@ -12,23 +12,35 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 
-export type EnvConf = {
-	name: string,
-	port: number,
-	db: DBConf,
-}
-
-
-//---------------------------------------------------------
-// Check if all required vars exists
-//---------------------------------------------------------
-
 const requiredVars = [
 	'DB_HOST',
 	'DB_NAME',
 	'DB_USER',
 	'DB_PASS',
+	'JWT_SECRET',
 ]
+
+export const conf = {
+	name: process.env.NODE_ENV || 'local',
+	port: process.env.PORT || 8080,
+	db: {
+		host: process.env.DB_HOST,
+		port: process.env.DB_PORT,
+		database: process.env.DB_NAME,
+		username: process.env.DB_USER,
+		password: process.env.DB_PASS
+	} as DBConf,
+	jwtSecret: process.env.JWT_SECRET as string
+}
+
+export const isProd = process.env.NODE_ENV == 'production'
+export const isStg = process.env.NODE_ENV == 'staging'
+export const isDev = !isProd && !isStg
+
+
+//---------------------------------------------------------
+// Check if all required vars exists
+//---------------------------------------------------------
 
 // Getting missing vars
 const missingRequiredVars = 
@@ -41,23 +53,6 @@ if (missingRequiredVars.length != 0) {
 	missingRequiredVars
 		.forEach(rv => console.log(' - ' + rv))
 	
-	// Exit
+	// Exit if env vars are missing
 	process.exit(1)
 }
-
-
-//---------------------------------------------------------
-// Export env conf
-//---------------------------------------------------------
-
-export const conf = {
-	name: process.env.NODE_ENV || 'local',
-	port: process.env.PORT || 8080,
-	db: {
-		host: process.env.DB_HOST,
-		port: process.env.DB_PORT,
-		database: process.env.DB_NAME,
-		username: process.env.DB_USER,
-		password: process.env.DB_PASS
-	}
-} as EnvConf

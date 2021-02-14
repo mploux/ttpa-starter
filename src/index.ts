@@ -6,15 +6,17 @@
 ***********************************************************/
 
 import express from 'express'
+import morgan from 'morgan'
 import bodyParser from 'body-parser'
 import path from 'path'
 import { db } from "./database"
-import { conf as envConf } from './env'
+import { conf as envConf, isDev } from './env'
 import { conf as appConf } from './conf'
 import { handleAppErrors, NotFoundError } from './errors'
 import { getApiRoutes } from './controllers/'
 
 import UsersController from './controllers/users'
+import AuthController from './controllers/auth'
 
 
 db.connect().then(async () => {
@@ -26,6 +28,8 @@ db.connect().then(async () => {
 	app.use(express
 		.static(path.join(__dirname, '..', 'public')))
 
+	app.use(morgan(isDev ? 'dev' : 'combined'))
+
 	app.get('/', (req, res) => {
 
 		req.body
@@ -36,7 +40,7 @@ db.connect().then(async () => {
 	})
 
 	app.use(getApiRoutes(UsersController))
-	// app.use(getApiRoutes(FeedController))
+	app.use(getApiRoutes(AuthController))
 	// app.use(getApiRoutes(BlogController))
 
 	app.use('*', (req, res, next) => {
@@ -52,3 +56,13 @@ db.connect().then(async () => {
 	})
 
 }).catch(console.error)
+
+
+// Global express requests
+declare global {
+	namespace Express {
+		export interface Request {
+				userId: number
+		}
+	}
+}

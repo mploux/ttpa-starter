@@ -6,6 +6,7 @@
 ***********************************************************/
 
 import { Request, Response, NextFunction } from "express"
+import { isDev } from './env'
 
 
 export function handleAppErrors(app: any) {
@@ -13,11 +14,16 @@ export function handleAppErrors(app: any) {
 	app.use((error: any, 
 		req: Request, res: Response, next: NextFunction) => {
 
+		if (error.code == 500 && !isDev)
+			error = new InternalError()
+
+		if (isDev) console.error(error)
+
 		const status = error.statusCode || 500
-		const message = error.message
-		
-		return res.status(status)
-			.json({ code: status, message: message })
+		return res.status(status).json({ 
+				code: status, 
+				error: error.errorCode, 
+				message: error.message})
 	})
 }
 
@@ -29,11 +35,22 @@ export function handleAppErrors(app: any) {
 export class StatusError extends Error {
 
 	statusCode: number
+	errorCode: string
 
-	constructor(statusCode: number, message: string) {
+	constructor(statusCode: number, 
+		errorCode: string, message: string) {
 
 		super(message)
 		this.statusCode = statusCode
+		this.errorCode = errorCode
+	}
+}
+
+export class InternalError extends StatusError {
+
+	constructor() {
+
+		super(500, 'internal', 'Internal server error.')
 	}
 }
 
@@ -41,6 +58,50 @@ export class NotFoundError extends StatusError {
 
 	constructor(message?: string) {
 
-		super(404, message || 'Not Found')
+		super(404, 'not-found', message || 'Not Found')
+	}
+}
+
+export class AuthError extends StatusError {
+
+	constructor(errorCode?: string, message?: string) {
+
+		super(
+			401, 
+			'auth/' + (errorCode || 'not-authenticated'), 
+			message || 'Not authenticated.')
+	}
+}
+
+export class UserExistsError extends AuthError {
+
+	constructor() {
+
+		super(
+			'user-exists',
+			"User already exists !"
+		)
+	}
+}
+
+export class AuthCredentialsError extends AuthError {
+
+	constructor() {
+
+		super(
+			'invalid-credentials',
+			"Invalid credentials !"
+		)
+	}
+}
+
+export class InvalidPasswordError extends AuthError {
+
+	constructor() {
+
+		super(
+			'invalid-password',
+			"Invalid password !"
+		)
 	}
 }
