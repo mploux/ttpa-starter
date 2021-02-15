@@ -12,7 +12,7 @@ import User from '../models/User'
 import { apiRoute } from '.'
 import { AuthCredentialsError, InvalidPasswordError, 
 	UserExistsError } from '../errors'
-import { conf as envConf } from '../env'
+import * as env from '../env'
 
 type Credentials = {
 	email: string,
@@ -37,7 +37,7 @@ export default class Auth extends Repository<User> {
 				userId: user.id.toString(),
 				userEmail: user.email
 			}, 
-			envConf.jwtSecret, 
+			env.conf.jwtSecret, 
 			{ expiresIn: '1h' }
 		)
 
@@ -54,14 +54,6 @@ export default class Auth extends Repository<User> {
 		user.password = hashedPw
 
 		return await this.save(user)
-	}
-
-	@apiRoute('get', '/logout')
-	public async logoutUser() {
-
-		return {
-			msg: 'wesh'
-		}
 	}
 
 }

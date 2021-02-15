@@ -7,8 +7,8 @@
 
 import { verify } from 'jsonwebtoken'
 import { NextFunction, Request, Response } from "express"
-import { AuthError } from "../errors";
-import { conf as envConf } from '../env'
+import { AuthError, InvalidAuthTokenError } from "../errors";
+import * as env from '../env'
 
 type AccessTokenData = {
 	userId: number,
@@ -24,12 +24,14 @@ export function isAuth(
 
 	const token = authHeader.split(' ')[1]
 	
-	let decodedToken
+	let decodedToken: AccessTokenData
 	try { 
 		decodedToken = 
-			<AccessTokenData>verify(token, envConf.jwtSecret)
+			<AccessTokenData>verify(token, env.conf.jwtSecret)
 	}
-	catch (err) { throw err }
+	catch (err) { 
+		throw new InvalidAuthTokenError() 
+	}
 	
 	res.setHeader("access-token", token)
 	req.userId = decodedToken.userId

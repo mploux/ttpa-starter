@@ -6,7 +6,7 @@
 ***********************************************************/
 
 import { Request, Response, NextFunction } from "express"
-import { isDev } from './env'
+import * as env from './env'
 
 
 export function handleAppErrors(app: any) {
@@ -14,10 +14,10 @@ export function handleAppErrors(app: any) {
 	app.use((error: any, 
 		req: Request, res: Response, next: NextFunction) => {
 
-		if (error.code == 500 && !isDev)
+		if (error.code == 500 && !env.isDev)
 			error = new InternalError()
 
-		if (isDev) console.error(error)
+		if (env.isDev) console.error(error)
 
 		const status = error.statusCode || 500
 		return res.status(status).json({ 
@@ -62,6 +62,11 @@ export class NotFoundError extends StatusError {
 	}
 }
 
+
+//---------------------------------------------------------
+// Auth Errors
+//---------------------------------------------------------
+
 export class AuthError extends StatusError {
 
 	constructor(errorCode?: string, message?: string) {
@@ -102,6 +107,17 @@ export class InvalidPasswordError extends AuthError {
 		super(
 			'invalid-password',
 			"Invalid password !"
+		)
+	}
+}
+
+export class InvalidAuthTokenError extends AuthError {
+
+	constructor() {
+
+		super(
+			'auth-token-invalid',
+			"Invalid auth token !"
 		)
 	}
 }

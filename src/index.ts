@@ -10,7 +10,7 @@ import morgan from 'morgan'
 import bodyParser from 'body-parser'
 import path from 'path'
 import { db } from "./database"
-import { conf as envConf, isDev } from './env'
+import * as env from './env'
 import { conf as appConf } from './conf'
 import { handleAppErrors, NotFoundError } from './errors'
 import { getApiRoutes } from './controllers/'
@@ -28,7 +28,7 @@ db.connect().then(async () => {
 	app.use(express
 		.static(path.join(__dirname, '..', 'public')))
 
-	app.use(morgan(isDev ? 'dev' : 'combined'))
+	app.use(morgan(env.isDev ? 'dev' : 'combined'))
 
 	app.get('/', (req, res) => {
 
@@ -41,7 +41,6 @@ db.connect().then(async () => {
 
 	app.use(getApiRoutes(UsersController))
 	app.use(getApiRoutes(AuthController))
-	// app.use(getApiRoutes(BlogController))
 
 	app.use('*', (req, res, next) => {
 			next(new NotFoundError())
@@ -49,9 +48,9 @@ db.connect().then(async () => {
 
 	handleAppErrors(app)
 	
-	app.listen(envConf.port, () => {
+	app.listen(env.conf.port, () => {
 		const msg = 
-			'⚡️ Server running on port ' + envConf.port
+			'⚡️ Server running on port ' + env.conf.port
 		console.log(msg)
 	})
 

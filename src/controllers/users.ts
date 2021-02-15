@@ -27,5 +27,5 @@ export default class Users extends Repository<User> {
 
 		return await this.findOne(id)
 	}
-
+ 
 }
