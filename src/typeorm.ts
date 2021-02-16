@@ -29,7 +29,7 @@ import {
 } from "typeorm"
 
 
-export abstract class Table extends BaseEntity {
+export abstract class TableEntity extends BaseEntity {
 
 	@primaryGeneratedColumn()
 	id!: number
@@ -37,6 +37,7 @@ export abstract class Table extends BaseEntity {
 
 export {
 	Connection, Repository, getConnection,
+	
 	table, column, primaryColumn, primaryGeneratedColumn, 
 	tableRepository
 }

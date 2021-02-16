@@ -62,6 +62,17 @@ export class NotFoundError extends StatusError {
 	}
 }
 
+export class InvalidRequestDataError extends StatusError {
+
+	constructor(message?: string) {
+
+		super(
+			422, 
+			'invalid-request-data', 
+			message || 'Entered data is incorrect.')
+	}
+}
+
 
 //---------------------------------------------------------
 // Auth Errors
@@ -84,7 +95,7 @@ export class UserExistsError extends AuthError {
 
 		super(
 			'user-exists',
-			"User already exists !"
+			"User already exists."
 		)
 	}
 }
@@ -95,7 +106,7 @@ export class AuthCredentialsError extends AuthError {
 
 		super(
 			'invalid-credentials',
-			"Invalid credentials !"
+			"Invalid credentials."
 		)
 	}
 }
@@ -106,7 +117,7 @@ export class InvalidPasswordError extends AuthError {
 
 		super(
 			'invalid-password',
-			"Invalid password !"
+			"Invalid password."
 		)
 	}
 }
@@ -117,7 +128,7 @@ export class InvalidAuthTokenError extends AuthError {
 
 		super(
 			'auth-token-invalid',
-			"Invalid auth token !"
+			"Invalid auth token."
 		)
 	}
 }

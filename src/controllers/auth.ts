@@ -9,10 +9,13 @@ import { sign } from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import { tableRepository, Repository } from '../typeorm'
 import User from '../models/User'
-import { apiRoute } from '.'
+import { apiRoute, apiValidate } from '.'
 import { AuthCredentialsError, InvalidPasswordError, 
+	InvalidRequestDataError, 
 	UserExistsError } from '../errors'
 import * as env from '../env'
+import { Request, Response } from 'express'
+
 
 type Credentials = {
 	email: string,
@@ -23,7 +26,12 @@ type Credentials = {
 export default class Auth extends Repository<User> {
 
 	@apiRoute('post', '/login')
-	public async loginUser(cred: Credentials) {
+	public async loginUser(req: Request, res: Response) {
+
+		const cred = req.body as Credentials
+
+		if (!cred)
+			throw new InvalidRequestDataError()
 
 		const user = await this.findOne({ email: cred.email })
 
@@ -41,19 +49,28 @@ export default class Auth extends Repository<User> {
 			{ expiresIn: '1h' }
 		)
 
-		return { token, user: user }
+		res.cookie('access-token', token, { 
+			expires: new Date(Date.now() + 3600000), 
+			httpOnly: true, signed: true })
+
+		return { 'access-token': token, user: user }
 	}
 
 	@apiRoute('post', '/signup')
-	public async createUser(user: User) {
+	@apiValidate({ body: new User() })
+	public async createUser(req: Request) {
+
+		const user = req.body as User
+
+		if (!user)
+			throw new InvalidRequestDataError()
 
 		if (await this.findOne({ email: user.email }))
 			throw new UserExistsError()
 
-		const hashedPw = await bcrypt.hash(user.password, 12)
-		user.password = hashedPw
+		const hashed = await bcrypt.hash(user.password, 12)
+		user.password = hashed
 
 		return await this.save(user)
 	}
-
 }

@@ -18,6 +18,7 @@ const requiredVars = [
 	'DB_USER',
 	'DB_PASS',
 	'JWT_SECRET',
+	'COOKIE_SECRET',
 ]
 
 export const conf = {
@@ -30,7 +31,8 @@ export const conf = {
 		username: process.env.DB_USER,
 		password: process.env.DB_PASS
 	} as DBConf,
-	jwtSecret: process.env.JWT_SECRET as string
+	jwtSecret: process.env.JWT_SECRET as string,
+	cookieSecret: process.env.COOKIE_SECRET as string,
 }
 
 export const isProd = process.env.NODE_ENV == 'production'

@@ -6,15 +6,17 @@
 ***********************************************************/
 
 import { Router } from "express"
+import { validationResult } from "express-validator"
 import { ObjectType } from "typeorm"
-import { NotFoundError } from "../errors"
+import { InvalidRequestDataError, NotFoundError }
+	from "../errors"
 import { MiddlewareFunction } from "../middlewares"
 import { getConnection } 
 	from "../typeorm"
+import { validate } from "../validations"
 
 
 export type ApiMethod = 'get' | 'post' | 'put' | 'delete'
-
 
 //---------------------------------------------------------
 // Decorators
@@ -45,6 +47,17 @@ export function apiWith(
 	}
 }
 
+export function apiValidate(schema: { body: any }) {
+
+	return (
+		target: any,
+		key: string,) => {
+
+			const defMeta = Reflect.defineMetadata
+			defMeta("api:schema", schema, target, key)
+	}
+}
+
 
 //---------------------------------------------------------
 // Contoller router
@@ -68,34 +81,38 @@ export function getApiRoutes<T>
 		const { getMetadata } = Reflect
 		const method = getMetadata('api:method', repo, md)
 		const path = getMetadata('api:path', repo, md)
-		let middlewares = getMetadata('api:middlewares', repo, md
-			) as MiddlewareFunction[] || []
+		const middlewares = getMetadata('api:middlewares',
+		repo, md) as MiddlewareFunction[] || []
+		const schema = getMetadata('api:schema', repo, md)
 		
 		// Handle invalid api meta
 		if (!method || !path)
 			continue
 		
-		// Handle invalid api meta
+		// Pushing the api method middleware
 		middlewares.push(async (req, res, next) => {
 
 			try {
-				// Handle GET requests
-				if (method == 'get') {
-					let params = Object.values(req.params)
-					// @ts-ignore because it's ok to be dynamic
-					const result = await repo[md].apply(repo, params)
-	
-					if (!result)
-						return next(new NotFoundError())
-					res.status(200).json(result)
+
+				// Schema validation
+				if (schema?.body) {
+					Object.assign(schema.body, req.body)
+					if ((await validate(schema?.body)).length > 0)
+						throw new InvalidRequestDataError()
 				}
-	
-				// Handle other requests
-				else {
-					// @ts-ignore because it's ok to be dynamic
-					const result = await repo[md](req.body)
-					res.status(200).json(result)
-				}
+
+				// Basic validation
+				if (!validationResult(req).isEmpty())
+					throw new InvalidRequestDataError()
+
+				// Running repo method
+				// @ts-ignore because it's ok to be dynamic
+				const result = await repo[md](req, res, next)
+
+				if (method == 'get' && !result)
+					throw new NotFoundError()
+
+				res.status(200).json(result)
 			}
 			catch(err) {
 				next(err)

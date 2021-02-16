@@ -8,6 +8,7 @@
 import express from 'express'
 import morgan from 'morgan'
 import bodyParser from 'body-parser'
+import cookieParser from 'cookie-parser'
 import path from 'path'
 import { db } from "./database"
 import * as env from './env'
@@ -15,8 +16,8 @@ import { conf as appConf } from './conf'
 import { handleAppErrors, NotFoundError } from './errors'
 import { getApiRoutes } from './controllers/'
 
-import UsersController from './controllers/users'
-import AuthController from './controllers/auth'
+import UsersController from './controllers/Users'
+import AuthController from './controllers/Auth'
 
 
 db.connect().then(async () => {
@@ -24,6 +25,7 @@ db.connect().then(async () => {
 	const app = express()
 
 	app.use(bodyParser.json())
+	app.use(cookieParser(env.conf.cookieSecret))
 
 	app.use(express
 		.static(path.join(__dirname, '..', 'public')))
@@ -49,19 +51,7 @@ db.connect().then(async () => {
 	handleAppErrors(app)
 	
 	app.listen(env.conf.port, () => {
-		const msg = 
-			'⚡️ Server running on port ' + env.conf.port
-		console.log(msg)
+		console.log('⚡️ Listening on port ' + env.conf.port)
 	})
 
 }).catch(console.error)
-
-
-// Global express requests
-declare global {
-	namespace Express {
-		export interface Request {
-				userId: number
-		}
-	}
-}

@@ -6,9 +6,11 @@
 ***********************************************************/
 
 import { tableRepository, Repository } from '../typeorm'
-import User from '../models/User';
-import { apiRoute, apiWith } from '.';
-import { isAuth } from '../middlewares/isAuth';
+import User from '../models/User'
+import { apiRoute, apiWith } from '.'
+import { isAuth } from '../middlewares/isAuth'
+import { Request } from 'express'
+import { param } from '../validations'
 
 
 @tableRepository(User)
@@ -20,12 +22,20 @@ export default class Users extends Repository<User> {
 		
 		return await this.find()
 	}
-	
-	@apiRoute('get', '/users/:id')
+
+	@apiRoute('get', '/users/me')
 	@apiWith(isAuth)
-	public async findByID(id: number) {
+	public async findMe(req: Request) {
+
+		return await this.findOne(req.userId)
+	}
+
+	@apiRoute('get', '/users/:id')
+	@apiWith(isAuth, param('id').isNumeric())
+	public async findByID(req: Request) {
+		
+		const id = req.params.id
 
 		return await this.findOne(id)
 	}
- 
 }
