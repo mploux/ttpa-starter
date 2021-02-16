@@ -1,6 +1,6 @@
 /**********************************************************
 *
-*  Env conf - WIP
+*  Env conf
 *  @author Marc <marcandre@ploux.fr>
 *
 ***********************************************************/
@@ -18,6 +18,7 @@ const requiredVars = [
 	'DB_USER',
 	'DB_PASS',
 	'JWT_SECRET',
+	'JWT_REFRESH_SECRET',
 	'COOKIE_SECRET',
 ]
 
@@ -31,8 +32,9 @@ export const conf = {
 		username: process.env.DB_USER,
 		password: process.env.DB_PASS
 	} as DBConf,
-	jwtSecret: process.env.JWT_SECRET as string,
-	cookieSecret: process.env.COOKIE_SECRET as string,
+	jwtSecret: process.env.JWT_SECRET!,
+	jwtRefreshSecret: process.env.JWT_REFRESH_SECRET!,
+	cookieSecret: process.env.COOKIE_SECRET!,
 }
 
 export const isProd = process.env.NODE_ENV == 'production'

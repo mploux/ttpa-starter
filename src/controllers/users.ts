@@ -16,12 +16,19 @@ import { param } from '../validations'
 @tableRepository(User)
 export default class Users extends Repository<User> {
 
+	
 	@apiRoute('get', '/users')
 	@apiWith(isAuth)
 	public async findAll() {
 		
-		return await this.find()
+		return (await this.find()).map(user => { return {
+			id: user.id,
+			firstName: user.firstName,
+			lastName: user.lastName,
+			email: user.email,
+		}})
 	}
+
 
 	@apiRoute('get', '/users/me')
 	@apiWith(isAuth)
@@ -29,6 +36,7 @@ export default class Users extends Repository<User> {
 
 		return await this.findOne(req.userId)
 	}
+
 
 	@apiRoute('get', '/users/:id')
 	@apiWith(isAuth, param('id').isNumeric())

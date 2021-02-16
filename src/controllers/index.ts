@@ -97,7 +97,10 @@ export function getApiRoutes<T>
 				// Schema validation
 				if (schema?.body) {
 					Object.assign(schema.body, req.body)
-					if ((await validate(schema?.body)).length > 0)
+					
+					if ((await validate(
+						schema?.body, { forbidUnknownValues: true }))
+							.length > 0)
 						throw new InvalidRequestDataError()
 				}
 

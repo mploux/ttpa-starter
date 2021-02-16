@@ -58,7 +58,15 @@ export class NotFoundError extends StatusError {
 
 	constructor(message?: string) {
 
-		super(404, 'not-found', message || 'Not Found')
+		super(404, 'not-found', message || 'Not found.')
+	}
+}
+
+export class BadRequestError extends StatusError {
+
+	constructor(message?: string) {
+
+		super(400, 'bad-request', message || 'Bad request.')
 	}
 }
 
@@ -70,6 +78,14 @@ export class InvalidRequestDataError extends StatusError {
 			422, 
 			'invalid-request-data', 
 			message || 'Entered data is incorrect.')
+	}
+}
+
+export class InvalidTokenError extends StatusError {
+
+	constructor() {
+
+		super(400, 'invalid-token', 'Invalid token.')
 	}
 }
 
@@ -127,7 +143,7 @@ export class InvalidAuthTokenError extends AuthError {
 	constructor() {
 
 		super(
-			'auth-token-invalid',
+			'invalid-token',
 			"Invalid auth token."
 		)
 	}

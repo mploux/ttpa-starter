@@ -7,23 +7,51 @@
 
 import { column, TableEntity, table } 
 	from '../typeorm'
-import { isEmail, length } from '../validations'
+import { isEmail, isPassword } from '../validations'
+
 
 @table("users")
 export default class User extends TableEntity {
 
-	@column({ nullable: true })
-	firstname!: string
-	
-	@column({ nullable: true })
-	lastname!: string
-	
+
+//---------------------------------------------------------
+// General properties
+//---------------------------------------------------------
+
 	@column()
 	@isEmail()
 	email!: string
-	
+
 	@column()
-	@length(8, 32)
+	@isPassword()
 	password!: string
+
+	@column({ nullable: true })
+	firstName!: string
+
+	@column({ nullable: true })
+	lastName!: string
+
+
+//---------------------------------------------------------
+// Tokens
+//---------------------------------------------------------
+
+	@column({ nullable: true })
+	refreshToken!: string
+
+	@column({ nullable: true })
+	resetPassToken!: string
+
+
+//---------------------------------------------------------
+// Basic analytics
+//---------------------------------------------------------
+
+	@column({ nullable: true })
+	lastLogin!: Date
+
+	@column({ nullable: true })
+	lastAuth!: Date
 
 }
