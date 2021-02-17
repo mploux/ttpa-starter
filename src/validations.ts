@@ -14,6 +14,7 @@ import {
 	validate,
 
 	Allow										as allow,
+	IsDefined								as isDefined,
 	IsInt 									as isInt, 
 	Length 									as isLength, 
 	IsEmail 								as isEmail, 
@@ -31,5 +32,5 @@ export const isPassword = () => isLength(6, 32)
 export {
 	validate,
 	isInt, isEmail, isFQDN, isDate, min, max, isLength,
-	param, body, query, allow
+	param, body, query, allow, isDefined
 }

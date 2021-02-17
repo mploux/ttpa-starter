@@ -7,16 +7,17 @@
 
 import { tableRepository, Repository } from '../typeorm'
 import User from '../models/User'
-import { apiRoute, apiValidate, apiWith, PasswordSchema } 
+import { apiRoute, apiValidate, apiWith } 
 	from '.'
 import { isAuth } from '../middlewares/isAuth'
 import { Request, Response } from 'express'
 import { allow, isEmail, param } from '../validations'
-import { BadRequestError, InvalidPasswordError, NotFoundError, 
+import { BadRequestError, NotFoundError, 
 	UnauthorizedError } from '../errors'
-import bcrypt from 'bcryptjs'
 import { isLength } from '../validations'
 import { isVerified } from '../middlewares/isVerified'
+import { isPasswordStrict } 
+	from '../middlewares/isPasswordStrict'
 
 
 //---------------------------------------------------------
@@ -98,8 +99,7 @@ export default class Users extends Repository<User> {
 
 
 	@apiRoute('delete', '/users/:id')
-	@apiWith(isAuth, param('id').isNumeric())
-	@apiValidate({ body: new PasswordSchema() })
+	@apiWith(isAuth, isPasswordStrict, param('id').isNumeric())
 	public async deleteUser(req: Request, res: Response) {
 
 		const user = await this.findOne(req.params.id)
@@ -109,12 +109,6 @@ export default class Users extends Repository<User> {
 
 		if (user.id != req.userId)
 			throw new UnauthorizedError()
-
-		const password = (req.body as PasswordSchema).password
-
-		// Validating password
-		if (!await bcrypt.compare(password, user.password))
-			throw new InvalidPasswordError()
 
 		// Deleting user
 		await this.delete({ id: user.id })

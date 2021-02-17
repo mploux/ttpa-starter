@@ -11,9 +11,8 @@ import { ObjectType } from "typeorm"
 import { InvalidRequestDataError, NotFoundError }
 	from "../errors"
 import { MiddlewareFunction } from "../middlewares"
-import { getConnection } 
-	from "../typeorm"
-import { isEmail, isPassword, validate } 
+import { getConnection } from "../typeorm"
+import { isDefined, isEmail, isPassword, validate } 
 	from "../validations"
 
 
@@ -25,12 +24,12 @@ export type ApiMethod = 'get' | 'post' | 'put' | 'delete'
 //---------------------------------------------------------
 
 export class CredentialsSchema {
-	@isEmail() email!: string
-	@isPassword() password!: string
+	@isDefined() @isEmail() 		email!: string
+	@isDefined() @isPassword() 	password!: string
 }
 
 export class PasswordSchema {
-	@isPassword() password!: string
+	@isDefined() @isPassword() 	password!: string
 }
 
 
@@ -126,6 +125,9 @@ export function getApiRoutes<T>
 						})).length > 0)
 						throw new InvalidRequestDataError()
 				}
+				else
+					if (Object.keys(req.body).length != 0)
+						throw new InvalidRequestDataError() 
 
 				// Basic validation
 				if (!validationResult(req).isEmpty())
