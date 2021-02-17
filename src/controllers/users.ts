@@ -7,20 +7,43 @@
 
 import { tableRepository, Repository } from '../typeorm'
 import User from '../models/User'
-import { apiRoute, apiWith } from '.'
+import { apiRoute, apiValidate, apiWith, PasswordSchema } 
+	from '.'
 import { isAuth } from '../middlewares/isAuth'
-import { Request } from 'express'
-import { param } from '../validations'
+import { Request, Response } from 'express'
+import { allow, isEmail, param } from '../validations'
+import { BadRequestError, InvalidPasswordError, NotFoundError, 
+	UnauthorizedError } from '../errors'
+import bcrypt from 'bcryptjs'
+import { isLength } from '../validations'
+import { isVerified } from '../middlewares/isVerified'
 
+
+//---------------------------------------------------------
+// Schemas
+//---------------------------------------------------------
+
+class UserDataSchema {
+	
+	@allow() 			id!: number
+	@isLength(1) 	firstName!: string
+	@isLength(1) 	lastName!: string
+	@isEmail() 		email!: string
+}
+
+
+//---------------------------------------------------------
+// Users controller
+//---------------------------------------------------------
 
 @tableRepository(User)
 export default class Users extends Repository<User> {
 
 	
 	@apiRoute('get', '/users')
-	@apiWith(isAuth)
+	@apiWith(isAuth, isVerified)
 	public async findAll() {
-		
+
 		return (await this.find()).map(user => { return {
 			id: user.id,
 			firstName: user.firstName,
@@ -39,11 +62,67 @@ export default class Users extends Repository<User> {
 
 
 	@apiRoute('get', '/users/:id')
-	@apiWith(isAuth, param('id').isNumeric())
-	public async findByID(req: Request) {
-		
+	@apiWith(isAuth, isVerified, param('id').isNumeric())
+	public async findUser(req: Request) {
+
 		const id = req.params.id
 
 		return await this.findOne(id)
+	}
+
+
+
+	@apiRoute('put', '/users/:id')
+	@apiWith(isAuth, param('id').isNumeric())
+	@apiValidate({ body: new UserDataSchema() })
+	public async updateUser(req: Request) {
+
+		const user = await this.findOne(req.params.id)
+
+		if (!user)
+			throw new NotFoundError()
+
+		if (user.id != req.userId)
+			throw new UnauthorizedError()
+		
+		// Block email modification
+		if (req.body.email && user.email != req.body.email)
+			throw new BadRequestError()
+
+		Object.assign(user, req.body)
+
+		console.log(user)
+
+		return await this.save(user)
+	}
+
+
+	@apiRoute('delete', '/users/:id')
+	@apiWith(isAuth, param('id').isNumeric())
+	@apiValidate({ body: new PasswordSchema() })
+	public async deleteUser(req: Request, res: Response) {
+
+		const user = await this.findOne(req.params.id)
+
+		if (!user)
+			throw new NotFoundError()
+
+		if (user.id != req.userId)
+			throw new UnauthorizedError()
+
+		const password = (req.body as PasswordSchema).password
+
+		// Validating password
+		if (!await bcrypt.compare(password, user.password))
+			throw new InvalidPasswordError()
+
+		// Deleting user
+		await this.delete({ id: user.id })
+
+		// Removing cookies
+		res.clearCookie('access-token')
+		res.clearCookie('refresh-token')
+
+		return {}
 	}
 }

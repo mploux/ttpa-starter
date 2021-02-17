@@ -14,10 +14,6 @@ import { isEmail, isPassword } from '../validations'
 export default class User extends TableEntity {
 
 
-//---------------------------------------------------------
-// General properties
-//---------------------------------------------------------
-
 	@column()
 	@isEmail()
 	email!: string
@@ -31,11 +27,20 @@ export default class User extends TableEntity {
 
 	@column({ nullable: true })
 	lastName!: string
+	
+	@column({ default: 'user' })
+	role!: 'user' | 'admin'
+	
+	@column({ default: false })
+	isVerified!: boolean
 
 
 //---------------------------------------------------------
 // Tokens
 //---------------------------------------------------------
+
+	@column({ nullable: true })
+	verifyToken!: string
 
 	@column({ nullable: true })
 	refreshToken!: string

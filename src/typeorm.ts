@@ -9,7 +9,7 @@
 *  - Renamed `@Entity` to `@table` because we are using
 *    PostgreSQL tables and not NoSQL documents.
 *
-*  - Other renamings for simplifications
+*  - Other renaming for simplifications
 *
 *  @author Marc <marcandre@ploux.fr>
 *
@@ -33,6 +33,12 @@ export abstract class TableEntity extends BaseEntity {
 
 	@primaryGeneratedColumn()
 	id!: number
+
+	@column({ nullable: true })
+	createdAt!: Date
+
+	@column({ nullable: true })
+	updatedAt!: Date
 }
 
 export {

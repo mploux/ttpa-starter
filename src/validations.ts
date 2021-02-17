@@ -13,8 +13,9 @@
 import {
 	validate,
 
+	Allow										as allow,
 	IsInt 									as isInt, 
-	Length 									as length, 
+	Length 									as isLength, 
 	IsEmail 								as isEmail, 
 	IsFQDN 									as isFQDN, 
 	IsDate 									as isDate, 
@@ -25,10 +26,10 @@ import {
 import { param, body, query } from 'express-validator'
 
 
-export const isPassword = () => length(6, 32)
+export const isPassword = () => isLength(6, 32)
 
 export {
 	validate,
-	isInt, isEmail, isFQDN, isDate, min, max,
-	param, body, query
+	isInt, isEmail, isFQDN, isDate, min, max, isLength,
+	param, body, query, allow
 }

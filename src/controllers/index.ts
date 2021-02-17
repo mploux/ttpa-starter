@@ -13,10 +13,26 @@ import { InvalidRequestDataError, NotFoundError }
 import { MiddlewareFunction } from "../middlewares"
 import { getConnection } 
 	from "../typeorm"
-import { validate } from "../validations"
+import { isEmail, isPassword, validate } 
+	from "../validations"
 
 
 export type ApiMethod = 'get' | 'post' | 'put' | 'delete'
+
+
+//---------------------------------------------------------
+// Schemas
+//---------------------------------------------------------
+
+export class CredentialsSchema {
+	@isEmail() email!: string
+	@isPassword() password!: string
+}
+
+export class PasswordSchema {
+	@isPassword() password!: string
+}
+
 
 //---------------------------------------------------------
 // Decorators
@@ -47,6 +63,7 @@ export function apiWith(
 	}
 }
 
+// TODO: params & query schemas
 export function apiValidate(schema: { body: any }) {
 
 	return (
@@ -60,7 +77,7 @@ export function apiValidate(schema: { body: any }) {
 
 
 //---------------------------------------------------------
-// Contoller router
+// Controller router
 //---------------------------------------------------------
 
 export function getApiRoutes<T>
@@ -96,11 +113,17 @@ export function getApiRoutes<T>
 
 				// Schema validation
 				if (schema?.body) {
-					Object.assign(schema.body, req.body)
-					
+
+					const bodySchema = Object.create(schema.body)
+					Object.assign(bodySchema, req.body)
+
 					if ((await validate(
-						schema?.body, { forbidUnknownValues: true }))
-							.length > 0)
+						bodySchema, { 
+							forbidUnknownValues: true,
+							skipMissingProperties: true,
+							forbidNonWhitelisted: true,
+							whitelist: true
+						})).length > 0)
 						throw new InvalidRequestDataError()
 				}
 

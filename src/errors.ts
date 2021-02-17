@@ -89,6 +89,22 @@ export class InvalidTokenError extends StatusError {
 	}
 }
 
+export class UnauthorizedError extends StatusError {
+
+	constructor() {
+
+		super(401, 'unauthorized', 'Unauthorized.')
+	}
+}
+
+export class UnverifiedUserError extends StatusError {
+
+	constructor() {
+
+		super(401, 'unverified-user', 'Unverified user.')
+	}
+}
+
 
 //---------------------------------------------------------
 // Auth Errors
@@ -104,6 +120,7 @@ export class AuthError extends StatusError {
 			message || 'Not authenticated.')
 	}
 }
+
 
 export class UserExistsError extends AuthError {
 
