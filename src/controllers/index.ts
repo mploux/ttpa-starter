@@ -23,13 +23,17 @@ export type ApiMethod = 'get' | 'post' | 'put' | 'delete'
 // Schemas
 //---------------------------------------------------------
 
-export class CredentialsSchema {
-	@isDefined() @isEmail() 		email!: string
-	@isDefined() @isPassword() 	password!: string
+export abstract class Schema {}
+
+export class CredentialsSchema extends Schema {
+
+	@isDefined() @isEmail() 		email			= String()
+	@isDefined() @isPassword() 	password	= String()
 }
 
-export class PasswordSchema {
-	@isDefined() @isPassword() 	password!: string
+export class PasswordSchema extends Schema {
+	
+	@isDefined() @isPassword() 	password	= String()
 }
 
 
@@ -98,7 +102,7 @@ export function getApiRoutes<T>
 		const method = getMetadata('api:method', repo, md)
 		const path = getMetadata('api:path', repo, md)
 		const middlewares = getMetadata('api:middlewares',
-		repo, md) as MiddlewareFunction[] || []
+			repo, md) as MiddlewareFunction[] || []
 		const schema = getMetadata('api:schema', repo, md)
 		
 		// Handle invalid api meta
@@ -110,10 +114,16 @@ export function getApiRoutes<T>
 
 			try {
 
+				// Basic validation
+				if (!validationResult(req).isEmpty())
+					throw new InvalidRequestDataError()
+
 				// Schema validation
 				if (schema?.body) {
 
-					const bodySchema = Object.create(schema.body)
+					const bodySchema = new schema.body()
+					Object.keys(bodySchema)
+						.forEach(key => bodySchema[key] = null)
 					Object.assign(bodySchema, req.body)
 
 					if ((await validate(
@@ -128,10 +138,6 @@ export function getApiRoutes<T>
 				else
 					if (Object.keys(req.body).length != 0)
 						throw new InvalidRequestDataError() 
-
-				// Basic validation
-				if (!validationResult(req).isEmpty())
-					throw new InvalidRequestDataError()
 
 				// Running repo method
 				// @ts-ignore because it's ok to be dynamic

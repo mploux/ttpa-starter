@@ -10,6 +10,9 @@ import { UnverifiedUserError } from "../errors"
 import User from "../models/User"
 
 
+/**
+ * Route is protected by email verification state
+ */
 export async function isVerified(
 	req: Request, res: Response, next: NextFunction) {
 

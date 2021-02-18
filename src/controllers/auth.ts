@@ -27,7 +27,7 @@ export default class Auth extends Repository<User> {
 
 
 	@apiRoute('post', '/auth/login')
-	@apiValidate({ body: new CredentialsSchema() })
+	@apiValidate({ body: CredentialsSchema })
 	public async loginUser(req: Request, res: Response) {
 
 		const cred = req.body as CredentialsSchema
@@ -59,7 +59,7 @@ export default class Auth extends Repository<User> {
 
 
 	@apiRoute('post', '/auth/signup')
-	@apiValidate({ body: new CredentialsSchema() })
+	@apiValidate({ body: CredentialsSchema })
 	public async createUser(req: Request) {
 
 		const cred = req.body as CredentialsSchema
@@ -74,7 +74,7 @@ export default class Auth extends Repository<User> {
 		user.password = await bcrypt.hash(cred.password, 12)
 
 		// Saving the new user
-		return await this.save(user)
+		return (await this.save(user)).email
 	}
 
 
@@ -118,7 +118,7 @@ export default class Auth extends Repository<User> {
 
 
 	@apiRoute('post', '/auth/reset')
-	@apiValidate({ body: new PasswordSchema() })
+	@apiValidate({ body: PasswordSchema })
 	public async resetPass(req: Request) {
 
 		// Getting the reset token

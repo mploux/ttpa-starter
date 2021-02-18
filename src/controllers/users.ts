@@ -7,29 +7,30 @@
 
 import { tableRepository, Repository } from '../typeorm'
 import User from '../models/User'
-import { apiRoute, apiValidate, apiWith } 
+import { apiRoute, apiValidate, apiWith, PasswordSchema, Schema } 
 	from '.'
 import { isAuth } from '../middlewares/isAuth'
 import { Request, Response } from 'express'
-import { allow, isEmail, param } from '../validations'
+import { allow, isEmail, isLength, param } 
+	from '../validations'
 import { BadRequestError, NotFoundError, 
 	UnauthorizedError } from '../errors'
-import { isLength } from '../validations'
 import { isVerified } from '../middlewares/isVerified'
-import { isPasswordStrict } 
-	from '../middlewares/isPasswordStrict'
+import { isProtected } 
+	from '../middlewares/isProtected'
+import { parseAs } from "../utils"
 
 
 //---------------------------------------------------------
 // Schemas
 //---------------------------------------------------------
 
-class UserDataSchema {
-	
-	@allow() 			id!: number
-	@isLength(1) 	firstName!: string
-	@isLength(1) 	lastName!: string
-	@isEmail() 		email!: string
+class UserDataSchema extends Schema {
+
+	@allow() 				id 					= Number()
+	@isLength(1) 		firstName 	= String()
+	@isLength(1)		lastName 		= String()
+	@isEmail() 			email 			= String()
 }
 
 
@@ -40,17 +41,13 @@ class UserDataSchema {
 @tableRepository(User)
 export default class Users extends Repository<User> {
 
-	
+
 	@apiRoute('get', '/users')
 	@apiWith(isAuth, isVerified)
 	public async findAll() {
 
-		return (await this.find()).map(user => { return {
-			id: user.id,
-			firstName: user.firstName,
-			lastName: user.lastName,
-			email: user.email,
-		}})
+		return parseAs(UserDataSchema, 
+			await this.find())
 	}
 
 
@@ -58,7 +55,8 @@ export default class Users extends Repository<User> {
 	@apiWith(isAuth)
 	public async findMe(req: Request) {
 
-		return await this.findOne(req.userId)
+		return parseAs(UserDataSchema, 
+			await this.findOne(req.userId))
 	}
 
 
@@ -68,14 +66,14 @@ export default class Users extends Repository<User> {
 
 		const id = req.params.id
 
-		return await this.findOne(id)
+		return parseAs(UserDataSchema, 
+			await this.findOne(id))
 	}
-
 
 
 	@apiRoute('put', '/users/:id')
 	@apiWith(isAuth, param('id').isNumeric())
-	@apiValidate({ body: new UserDataSchema() })
+	@apiValidate({ body: UserDataSchema })
 	public async updateUser(req: Request) {
 
 		const user = await this.findOne(req.params.id)
@@ -90,16 +88,20 @@ export default class Users extends Repository<User> {
 		if (req.body.email && user.email != req.body.email)
 			throw new BadRequestError()
 
+		// Block id modification
+		if (req.body.id && user.id != req.body.id)
+			throw new BadRequestError()
+
 		Object.assign(user, req.body)
 
-		console.log(user)
-
-		return await this.save(user)
+		return parseAs(UserDataSchema,
+			await this.save(user))
 	}
 
 
 	@apiRoute('delete', '/users/:id')
-	@apiWith(isAuth, isPasswordStrict, param('id').isNumeric())
+	@apiWith(isAuth, isProtected, param('id').isNumeric())
+	@apiValidate({ body: PasswordSchema })
 	public async deleteUser(req: Request, res: Response) {
 
 		const user = await this.findOne(req.params.id)

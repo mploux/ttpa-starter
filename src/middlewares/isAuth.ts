@@ -12,6 +12,9 @@ import User from '../models/User'
 import { decryptToken, encryptAccessToken } from '../tokens'
 
 
+/**
+ * Route is protected by authentication
+ */
 export async function isAuth(
 	req: Request, res: Response, next: NextFunction) {
 	

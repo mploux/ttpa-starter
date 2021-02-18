@@ -7,17 +7,23 @@
 
 import { NextFunction, Request, Response } from "express"
 import { PasswordSchema } from "../controllers"
-import { InvalidPasswordError, InvalidRequestDataError } from "../errors"
+import { InvalidPasswordError, InvalidRequestDataError } 
+	from "../errors"
 import User from "../models/User"
 import bcrypt from 'bcryptjs'
 import { validate } from "../validations"
 
 
-export async function isPasswordStrict(
+/**
+ * Route is protected by password
+ */
+export async function isProtected(
 	req: Request, res: Response, next: NextFunction) {
 
 	// Getting schema
 	const passwordSchema = new PasswordSchema()
+	Object.keys(passwordSchema)
+		.forEach(key => (passwordSchema as any)[key] = null)
 	Object.assign(passwordSchema, req.body)
 
 	// Validating schema
