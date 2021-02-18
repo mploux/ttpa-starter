@@ -7,8 +7,8 @@
 
 import { tableRepository, Repository } from '../typeorm'
 import User from '../models/User'
-import { apiRoute, apiValidate, apiWith, PasswordSchema, Schema } 
-	from '.'
+import { apiRoute, apiValidate, apiWith, PasswordSchema, 
+	Schema } from '.'
 import { isAuth } from '../middlewares/isAuth'
 import { Request, Response } from 'express'
 import { allow, isEmail, isLength, param } 
@@ -24,6 +24,13 @@ import { parseAs } from "../utils"
 //---------------------------------------------------------
 // Schemas
 //---------------------------------------------------------
+
+class LightUserDataSchema extends Schema {
+
+	@allow() 				id 					= Number()
+	@isLength(1) 		firstName 	= String()
+	@isLength(1)		lastName 		= String()
+}
 
 class UserDataSchema extends Schema {
 
@@ -46,7 +53,7 @@ export default class Users extends Repository<User> {
 	@apiWith(isAuth, isVerified)
 	public async findAll() {
 
-		return parseAs(UserDataSchema, 
+		return parseAs(LightUserDataSchema, 
 			await this.find())
 	}
 

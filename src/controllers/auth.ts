@@ -126,12 +126,12 @@ export default class Auth extends Repository<User> {
 		const decrypted = decryptResetPassToken(token)
 		if (!decrypted)
 			throw new InvalidTokenError()
-		
+
 		// Finding the corresponding user
 		const user = await this.findOne(decrypted.userId)
 		if (!user)
 			throw new BadRequestError()
-		
+
 		// Comparing send token with use token
 		if (token !== user.resetPassToken)
 			throw new BadRequestError()
@@ -155,16 +155,16 @@ export default class Auth extends Repository<User> {
 		const decrypted = decryptVerifyToken(token)
 		if (!decrypted)
 			throw new InvalidTokenError()
-		
+
 		// Finding the corresponding user
 		const user = await this.findOne(decrypted.userId)
 		if (!user)
 			throw new BadRequestError()
-		
+
 		// Making sure the user to update is the auth. one
 		if (req.userId != user.id)
 			throw new UnauthorizedError()
-		
+
 		// Checking if the user is already verified
 		if (user.isVerified)
 			throw new StatusError(400, 
