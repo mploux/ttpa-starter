@@ -6,6 +6,8 @@
 ***********************************************************/
 
 
+// Schema parser
+//---------------------------------------------------------
 export function parseAs(SchemaObj: any, data: any | any[]) {
 	
 	const parseEntry = (entry: any) => {

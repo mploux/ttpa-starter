@@ -13,11 +13,12 @@ import User from './models/User'
 
 
 export type Conf = {
-	host: string,
+	url?: string,
+	host?: string,
 	port?: number,
-	username: string,
-	password: string,
-	database: string,
+	username?: string,
+	password?: string,
+	database?: string,
 }
 
 export class Database {
@@ -25,6 +26,7 @@ export class Database {
 	conf: Conf
 
 	constructor(conf: Conf) {
+		
 		this.conf = conf
 	}
 

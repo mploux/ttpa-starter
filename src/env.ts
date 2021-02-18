@@ -13,10 +13,6 @@ dotenv.config()
 
 
 const requiredVars = [
-	'DB_HOST',
-	'DB_NAME',
-	'DB_USER',
-	'DB_PASS',
 	'JWT_SECRET',
 	'JWT_REFRESH_SECRET',
 	'COOKIE_SECRET',
@@ -26,6 +22,7 @@ export const conf = {
 	name: process.env.NODE_ENV || 'local',
 	port: process.env.PORT || 8080,
 	db: {
+		url: process.env.DATABASE_URL,
 		host: process.env.DB_HOST,
 		port: process.env.DB_PORT,
 		database: process.env.DB_NAME,

@@ -7,6 +7,7 @@
 
 import express from 'express'
 import morgan from 'morgan'
+import cors from 'cors'
 import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import path from 'path'
@@ -24,6 +25,7 @@ db.connect().then(async () => {
 
 	const app = express()
 
+	app.use(cors())
 	app.use(bodyParser.json())
 	app.use(cookieParser(env.conf.cookieSecret))
 
@@ -33,8 +35,6 @@ db.connect().then(async () => {
 	app.use(morgan(env.isDev ? 'dev' : 'combined'))
 
 	app.get('/', (req, res) => {
-
-		req.body
 
 		res.status(200).type('html')
 			.send(`<title>${appConf.name} API</title>
