@@ -5,8 +5,10 @@
 	"main": "src/index.ts",
 	"author": "Marc-André Ploux <marcandre@ploux.fr>",
 	"license": "MIT",
+	"engines": {
+    "node": "14.x"
+  },
 	"dependencies": {
-		"@types/cors": "^2.8.10",
 		"bcryptjs": "^2.4.3",
 		"body-parser": "^1.19.0",
 		"class-validator": "^0.13.1",
@@ -22,6 +24,7 @@
 		"typeorm": "^0.2.31"
 	},
 	"devDependencies": {
+		"@types/cors": "^2.8.10",
 		"@types/bcryptjs": "^2.4.2",
 		"@types/cookie-parser": "^1.4.2",
 		"@types/dotenv": "^8.2.0",
@@ -35,7 +38,9 @@
 		"typescript": "^4.1.5"
 	},
 	"scripts": {
-		"start": "ts-node src/index.ts",
+		"postinstall": "yarn build",
+		"build": "tsc --outDir ./dist --sourceMap false",
+		"start": "node ./dist/src/index.js",
 		"dev": "nodemon src/index.ts"
 	}
 }

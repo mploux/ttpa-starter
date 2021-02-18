@@ -2,8 +2,8 @@
 	"compilerOptions": {
 		"strict": true,
 		"target": "ES6",
-		"module": "CommonJS",
-		"moduleResolution": "Node",
+		"module": "commonjS",
+		"moduleResolution": "node",
 		"lib": [ "ESNext" ],
 		"allowSyntheticDefaultImports": true,
 		"resolveJsonModule": true,

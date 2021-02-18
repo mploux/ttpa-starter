@@ -7,7 +7,7 @@
 
 import { createConnection, getConnectionManager }
 	from "typeorm"
-import { conf as envConf } from './env'
+import * as env from './env'
 
 import User from './models/User'
 
@@ -41,7 +41,8 @@ export class Database {
 		return await createConnection({
 			type: "postgres", ...this.conf,
 			entities: [ User ],
-			synchronize: true
+			synchronize: true,
+			ssl: { rejectUnauthorized: false }
 		})
 	}
 
@@ -56,4 +57,4 @@ export class Database {
 	}
 }
 
-export const db = new Database(envConf.db)
+export const db = new Database(env.conf.db)
