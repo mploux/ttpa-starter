@@ -25,7 +25,10 @@ db.connect().then(async () => {
 
 	const app = express()
 
-	app.use(cors())
+	app.use(cors({
+		origin: 'http://localhost:1234',
+		credentials: true
+	}))
 	app.use(bodyParser.json())
 	app.use(cookieParser(env.conf.cookieSecret))
 

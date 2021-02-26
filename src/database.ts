@@ -42,7 +42,7 @@ export class Database {
 			type: "postgres", ...this.conf,
 			entities: [ User ],
 			synchronize: true,
-			ssl: { rejectUnauthorized: false }
+			ssl: env.isDev ? false : { rejectUnauthorized: false }
 		})
 	}
 

@@ -40,6 +40,15 @@ class UserDataSchema extends Schema {
 	@isEmail() 			email 			= String()
 }
 
+class SelfUserDataSchema extends Schema {
+
+	@allow() 				id 					= Number()
+	@isLength(1) 		firstName 	= String()
+	@isLength(1)		lastName 		= String()
+	@isEmail() 			email 			= String()
+	@allow()				isVerified	= Boolean()
+}
+
 
 //---------------------------------------------------------
 // Users controller
@@ -62,7 +71,7 @@ export default class Users extends Repository<User> {
 	@apiWith(isAuth)
 	public async findMe(req: Request) {
 
-		return parseAs(UserDataSchema, 
+		return parseAs(SelfUserDataSchema, 
 			await this.findOne(req.userId))
 	}
 
