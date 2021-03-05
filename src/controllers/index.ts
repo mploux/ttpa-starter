@@ -48,9 +48,9 @@ export function apiRoute(
 		target: any,
 		key: string,) => {
 
-			const defMeta = Reflect.defineMetadata
-			defMeta("api:method", method, target, key)
-			defMeta("api:path",  path, target, key)
+		const defMeta = Reflect.defineMetadata
+		defMeta("api:method", method, target, key)
+		defMeta("api:path",  path, target, key)
 	}
 }
 
@@ -61,8 +61,8 @@ export function apiWith(
 		target: any,
 		key: string,) => {
 
-			const defMeta = Reflect.defineMetadata
-			defMeta("api:middlewares", middlewares, target, key)
+		const defMeta = Reflect.defineMetadata
+		defMeta("api:middlewares", middlewares, target, key)
 	}
 }
 
@@ -73,8 +73,8 @@ export function apiValidate(schema: { body: any }) {
 		target: any,
 		key: string,) => {
 
-			const defMeta = Reflect.defineMetadata
-			defMeta("api:schema", schema, target, key)
+		const defMeta = Reflect.defineMetadata
+		defMeta("api:schema", schema, target, key)
 	}
 }
 

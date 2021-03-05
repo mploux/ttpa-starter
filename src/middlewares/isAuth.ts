@@ -9,7 +9,8 @@ import { NextFunction, Request, Response } from "express"
 import { InvalidAuthTokenError } from "../errors"
 import * as env from '../env'
 import User from '../models/User'
-import { decryptToken, encryptAccessToken } from '../tokens'
+import * as tokens from '../tokens'
+import * as cookies from '../cookies'
 
 
 /**
@@ -21,15 +22,15 @@ export async function isAuth(
 	// Getting tokens
 	let token = getToken(req)
 	let refreshToken = getRefreshToken(req)
-	
+
 	// Verifying tokens 
-	if (!token || !refreshToken)
+	if (!token && !refreshToken)
 		return next(new InvalidAuthTokenError())
 	
 	const { jwtSecret, jwtRefreshSecret } = env.conf
 	
 	// Checking access token or refreshing it
-	let decrypted = decryptToken(token, jwtSecret)
+	let decrypted = tokens.decryptToken(token, jwtSecret)
 	if (decrypted) {
 		req.userId = decrypted.userId
 		return next()
@@ -37,7 +38,8 @@ export async function isAuth(
 	else {
 		
 		// Checking refresh token
-		decrypted = decryptToken(refreshToken, jwtRefreshSecret)
+		decrypted = tokens
+			.decryptToken(refreshToken, jwtRefreshSecret)
 		if (!decrypted)
 			return next(new InvalidAuthTokenError())
 		
@@ -50,11 +52,9 @@ export async function isAuth(
 		await User.save(user)
 
 		// Refreshing access token
-		const token = encryptAccessToken(user?.id!)
+		const token = tokens.encryptAccessToken(user?.id!)
 		res.set('Bearer', token)
-		res.cookie('access-token', token, { 
-			expires: new Date(Date.now() + 3600000), // in 1mn
-			httpOnly: true, signed: true })
+		cookies.saveAccessToken(res, token)
 		
 		// Authenticated, continue
 		req.userId = decrypted.userId

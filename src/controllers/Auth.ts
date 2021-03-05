@@ -8,18 +8,17 @@
 import bcrypt from 'bcryptjs'
 import { tableRepository, Repository } from '../typeorm'
 import User from '../models/User'
-import { apiRoute, apiValidate, apiWith, CredentialsSchema, 
-	PasswordSchema } from '.'
+import { apiRoute, apiValidate, apiWith, 
+	CredentialsSchema, PasswordSchema } from '.'
 import { AuthCredentialsError, BadRequestError, 
 	InvalidPasswordError, InvalidTokenError, NotFoundError, 
 	StatusError, UnauthorizedError, UserExistsError } 
 	from '../errors'
 import { Request, Response } from 'express'
 import { body } from '../validations'
-import { encryptResetPassToken, encryptAccessToken, 
-	encryptRefreshToken, decryptResetPassToken, 
-	decryptVerifyToken, encryptVerifyToken } from '../tokens'
+import * as tokens from '../tokens'
 import { isAuth } from '../middlewares/isAuth'
+import * as cookies from '../cookies'
 
 
 @tableRepository(User)
@@ -40,8 +39,8 @@ export default class Auth extends Repository<User> {
 			throw new InvalidPasswordError()
 
 		// Creating tokens
-		const token = encryptAccessToken(user.id)
-		const refreshToken = encryptRefreshToken(user.id)
+		const token = tokens.encryptAccessToken(user.id)
+		const refreshToken = tokens.encryptRefreshToken(user.id)
 
 		// Saving login time and refresh token
 		user.refreshToken = refreshToken
@@ -49,7 +48,8 @@ export default class Auth extends Repository<User> {
 		await this.save(user)
 
 		// Saving tokens in cookies
-		saveCookies(res, token, refreshToken)
+		cookies.saveAccessToken(res, token)
+		cookies.saveRefreshToken(res, refreshToken)
 
 		// Logged in !
 		res.set('access-token', token)
@@ -88,7 +88,7 @@ export default class Auth extends Repository<User> {
 		this.save(user)
 		
 		// Clearing cookies
-		clearCookies(res)
+		cookies.clearTokens(res)
 		
 		// Logged out, return nothing
 		return {}
@@ -106,7 +106,7 @@ export default class Auth extends Repository<User> {
 			throw new NotFoundError()
 
 		// Encrypt a new reset password token and save it
-		const token = encryptResetPassToken(user.id)
+		const token = tokens.encryptResetPassToken(user.id)
 		user.resetPassToken = token
 		this.save(user)
 
@@ -123,7 +123,7 @@ export default class Auth extends Repository<User> {
 
 		// Getting the reset token
 		const token = req.query.token as string
-		const decrypted = decryptResetPassToken(token)
+		const decrypted = tokens.decryptResetPassToken(token)
 		if (!decrypted)
 			throw new InvalidTokenError()
 
@@ -152,7 +152,7 @@ export default class Auth extends Repository<User> {
 
 		// Getting the verify token
 		const token = req.query.token as string
-		const decrypted = decryptVerifyToken(token)
+		const decrypted = tokens.decryptVerifyToken(token)
 		if (!decrypted)
 			throw new InvalidTokenError()
 
@@ -189,7 +189,7 @@ export default class Auth extends Repository<User> {
 			throw new StatusError(400, 
 				'already-verified', 'Already verified.')
 		
-		user.verifyToken = encryptVerifyToken(user.id)
+		user.verifyToken = tokens.encryptVerifyToken(user.id)
 		this.save(user)
 
 		// TODO: send email with verif link
@@ -199,25 +199,4 @@ export default class Auth extends Repository<User> {
 			token: user.verifyToken
 		}
 	}
-}
-
-
-//---------------------------------------------------------
-// Utils
-//---------------------------------------------------------
-
-function saveCookies(
-	res: Response, token: string, refreshToken: string) {
-
-	res.cookie('access-token', token, { 
-		expires: new Date(Date.now() + 3600000), // in 1mn
-		httpOnly: true, signed: true })
-	res.cookie('refresh-token', refreshToken, { 
-		httpOnly: true, signed: true })
-}
-
-function clearCookies(res: Response) {
-
-	res.clearCookie('access-token')
-	res.clearCookie('refresh-token')
 }
