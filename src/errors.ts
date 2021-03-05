@@ -6,7 +6,7 @@
 ***********************************************************/
 
 import { Request, Response, NextFunction } from "express"
-import * as env from './env'
+import { conf as env } from './env'
 
 
 export function handleAppErrors(app: any) {

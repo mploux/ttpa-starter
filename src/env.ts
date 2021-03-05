@@ -11,12 +11,15 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-
 const requiredVars = [
 	'JWT_SECRET',
 	'JWT_REFRESH_SECRET',
 	'COOKIE_SECRET',
 ]
+
+const isProd = process.env.NODE_ENV == 'production'
+const isStg = process.env.NODE_ENV == 'staging'
+const isDev = !isProd && !isStg
 
 export const conf = {
 	name: process.env.NODE_ENV || 'local',
@@ -29,14 +32,11 @@ export const conf = {
 		username: process.env.DB_USER,
 		password: process.env.DB_PASS
 	} as DBConf,
-	jwtSecret: process.env.JWT_SECRET!,
+	jwtSecret: 	process.env.JWT_SECRET!,
 	jwtRefreshSecret: process.env.JWT_REFRESH_SECRET!,
 	cookieSecret: process.env.COOKIE_SECRET!,
+	isProd, isStg, isDev
 }
-
-export const isProd = process.env.NODE_ENV == 'production'
-export const isStg = process.env.NODE_ENV == 'staging'
-export const isDev = !isProd && !isStg
 
 
 //---------------------------------------------------------

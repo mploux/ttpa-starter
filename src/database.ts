@@ -7,7 +7,7 @@
 
 import { createConnection, getConnectionManager }
 	from "typeorm"
-import * as env from './env'
+import { conf as env } from './env'
 
 import User from './models/User'
 
@@ -57,4 +57,4 @@ export class Database {
 	}
 }
 
-export const db = new Database(env.conf.db)
+export const db = new Database(env.db)

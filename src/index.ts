@@ -12,8 +12,8 @@ import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import path from 'path'
 import { db } from "./database"
-import * as env from './env'
-import { conf as appConf } from './conf'
+import { conf as env } from './env'
+import pkg from '../package.json'
 import { handleAppErrors, NotFoundError } from './errors'
 import { getApiRoutes } from './controllers/'
 
@@ -30,7 +30,7 @@ db.connect().then(async () => {
 		credentials: true
 	}))
 	app.use(bodyParser.json())
-	app.use(cookieParser(env.conf.cookieSecret))
+	app.use(cookieParser(env.cookieSecret))
 
 	app.use(express
 		.static(path.join(__dirname, '..', 'public')))
@@ -40,8 +40,8 @@ db.connect().then(async () => {
 	app.get('/', (req, res) => {
 
 		res.status(200).type('html')
-			.send(`<title>${appConf.name} API</title>
-				Welcome to the ${appConf.name} API !`)
+			.send(`<title>${pkg.name} API</title>
+				Welcome to the ${pkg.name} API !`)
 	})
 
 	app.use(getApiRoutes(UsersController))
@@ -53,8 +53,8 @@ db.connect().then(async () => {
 
 	handleAppErrors(app)
 	
-	app.listen(env.conf.port, () => {
-		console.log('⚡️ Listening on port ' + env.conf.port)
+	app.listen(env.port, () => {
+		console.log('⚡️ Listening on port ' + env.port)
 	})
 
 }).catch(console.error)
